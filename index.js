@@ -31,7 +31,7 @@ app.get('/all',async(req,res)=>{
 
 app.get('/:shortId',async(req,res)=>{
     const shortId=req.params.shortId;
-   const entry = await URL.findOneAndUpdate({
+   let entry= await URL.findOneAndUpdate({
         shortId,
     },{
         $push:{
@@ -39,11 +39,17 @@ app.get('/:shortId',async(req,res)=>{
         }
     });
 
-    return res.redirect(entry.redirectURL);
+    if (entry && entry.redirectURL) {
+        res.redirect(entry.redirectURL);
+    } else {
+        // Handle the case where entry is null or redirectURL is missing
+        res.status(404).send("URL not found.");
+    }
+    
 });
 
+const port=process.env.PORT || 3000;
 
-
-app.listen(3000,()=>{
-    console.log("server running on 3000");
+app.listen(port,()=>{
+    console.log(`server started at :- http://localhost:${port}`);
 })
